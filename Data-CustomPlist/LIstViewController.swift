@@ -46,7 +46,7 @@ class ListViewController: UITableViewController, UIPickerViewDelegate, UIPickerV
     
     // 테이블 셀이 선택될 때 호출되는 메소드 (이름 레이블이 선택될 때 호출)
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.row == 1 {     // 이름을 선택했을 때
+        if indexPath.row == 1 && !(self.account.text?.isEmpty)!{     // 이름을 선택되었고, 계정 텍스트가 비어있지 않을 때
             
             // 이름을 입력받는 알림창
             let alert = UIAlertController(title: nil, message: "이름을 입력하세요", preferredStyle: .alert)
@@ -126,6 +126,10 @@ class ListViewController: UITableViewController, UIPickerViewDelegate, UIPickerV
         // 피커 뷰 설정
         self.setPicker()
         
+        // 네비게이션 오른쪽 버튼 추가
+        let addBtn = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(newAccount(_:)))
+        self.navigationItem.rightBarButtonItem = addBtn
+
         // UserDefaults 프로퍼티에서
         let plist = UserDefaults.standard
         
@@ -150,6 +154,12 @@ class ListViewController: UITableViewController, UIPickerViewDelegate, UIPickerV
             self.name.text = data?["name"] as? String
             self.gender.selectedSegmentIndex = data?["gender"] as? Int ?? 0
             self.married.isOn = data?["married"] as? Bool ?? false
+        }
+        
+        if (self.account.text?.isEmpty)! {      // 계정 정보가 비어있으면
+            self.account.placeholder = "등록된 계정이 없습니다."
+            self.gender.isEnabled = false       // 비활성화
+            self.married.isEnabled = false      // 비활성화
         }
     }
     
@@ -220,6 +230,9 @@ class ListViewController: UITableViewController, UIPickerViewDelegate, UIPickerV
         alert.addAction(UIAlertAction(title: "OK", style: .default){ (_) in
             
             if let account = alert.textFields?[0].text {  // 텍스트 필드에 값이 있으면
+                
+                self.gender.isEnabled = true
+                self.married.isEnabled = true
                 
                 // 계정의 정보 초기화
                 self.name.text = ""
